@@ -1,137 +1,169 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
-use crate::User;
-use gloo::net::http::Request;
-use yew::platform::spawn_local;
-use yew::{function_component, use_state, Callback, Html};
+use crate::{
+    modules::pages::{Page, Pages},
+    utils::Utils,
+};
 
-#[function_component(App)]
-fn app() -> Html {
-    let user_state = use_state(|| ("".to_string(), "".to_string(), None as Option<i32>));
-    let message = use_state(|| "".to_string());
-    let users = use_state(Vec::new);
+pub struct App {
+    page: Page,
+    screen_reader_state: bool,
+    pages: Pages,
+}
 
-    let get_users = {
-        let users = users.clone();
-        let message = message.clone();
-        Callback::from(move |_| {
-            let users = users.clone();
-            let message = message.clone();
-            spawn_local(async move {
-                match Request::get("http://127.0.0.1:8000/api/users").send().await {
-                    Ok(resp) if resp.ok() => {
-                        let fetched_users: Vec<User> = resp.json().await.unwrap_or_default();
-                        users.set(fetched_users);
-                    }
+impl Default for App {
+    fn default() -> Self {
+        Self {
+            page: Page::Home,
+            screen_reader_state: false,
+            pages: Pages {},
+        }
+    }
+}
 
-                    _ => message.set("Failed to fetch users".into()),
-                }
-            });
-        })
-    };
+impl eframe::App for App {
+    /// The entry point of the application.
+    ///
+    /// # Arguments
+    ///
+    /// * `ctx` - A reference to the `egui::Context`.
+    /// * `frame` - A reference to the `eframe::Frame`.
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        ctx.options_mut(|o| o.screen_reader = self.screen_reader_state);
 
-    let create_user = {
-        let user_state = user_state.clone();
-        let message = message.clone();
-        let get_users = get_users.clone();
-        Callback::from(move |_| {
-            let (name, email, _) = (*user_state).clone();
-            let user_state = user_state.clone();
-            let message = message.clone();
-            let get_users = get_users.clone();
+        self.header(ctx);
+        self.body(ctx);
+        self.footer(ctx);
+    }
+}
 
-            spawn_local(async move {
-                let user_data = serde_json::json!({ "name": name, "email": email });
+impl App {
+    const XODIUM_REPOSITORY_URL: &'static str = "https://github.com/XodiumSoftware";
+    const XBIM_REPOSITORY_URL: &'static str = "https://github.com/XodiumSoftware/xBIM";
+    const VANILLAPLUS_REPOSITORY_URL: &'static str =
+        "https://github.com/XodiumSoftware/VanillaPlus";
+    const EGUI_REPOSITORY_URL: &'static str = "https://github.com/emilk/egui";
+    const EFRAME_REPOSITORY_URL: &'static str =
+        "https://github.com/emilk/egui/tree/master/crates/eframe";
+    const CONTACT_EMAIL_URL: &'static str = "mailto:info@xodium.org";
+    const LICENSE_URL: &'static str = "https://www.gnu.org/licenses/agpl-3.0.html";
 
-                let response = Request::post("http://127.0.0.1:8000/api/users")
-                    .header("Content-Type", "application/json")
-                    .body(user_data.to_string())
-                    .expect("REASON")
-                    .send()
-                    .await;
-
-                match response {
-                    Ok(resp) if resp.ok() => {
-                        message.set("User created successfully".into());
-                        get_users.emit(());
-                    }
-
-                    _ => message.set("Failed to create user".into()),
-                }
-
-                user_state.set(("".to_string(), "".to_string(), None));
-            });
-        })
-    };
-
-    let update_user = {
-        let user_state = user_state.clone();
-        let message = message.clone();
-        let get_users = get_users.clone();
-
-        Callback::from(move |_| {
-            let (name, email, editing_user_id) = (*user_state).clone();
-            let user_state = user_state.clone();
-            let message = message.clone();
-            let get_users = get_users.clone();
-
-            if let Some(id) = editing_user_id {
-                spawn_local(async move {
-                    let response = Request::put(&format!("http://127.0.0.1:8000/api/users/{}", id))
-                        .header("Content-Type", "application/json")
-                        .body(serde_json::to_string(&(id, name.as_str(), email.as_str())).unwrap())
-                        .send()
-                        .await;
-
-                    match response {
-                        Ok(resp) if resp.ok() => {
-                            message.set("User updated successfully".into());
-                            get_users.emit(());
+    /// The header of the application.
+    ///
+    /// # Arguments
+    ///
+    /// * `ctx` - A reference to the `egui::Context`.
+    fn header(&mut self, ctx: &egui::Context) {
+        egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
+            egui::menu::bar(ui, |ui| {
+                ui.columns(2, |cols| {
+                    cols[0].with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+                        ui.heading(
+                            egui::RichText::new("Xodium")
+                                .color(egui::Color32::from_hex("#CB2D3E").unwrap())
+                                .strong(),
+                        );
+                        ui.hyperlink_to(
+                            egui::special_emojis::GITHUB.to_string(),
+                            Self::XODIUM_REPOSITORY_URL,
+                        )
+                        .on_hover_text("Github Repo");
+                        egui::warn_if_debug_build(ui);
+                        ui.add_space(15.0);
+                        if self.page == Page::Home {
+                            ui.menu_button("Projects", |ui| {
+                                ui.vertical(|ui| {
+                                    Utils.project_card(
+                                        ui,
+                                        "xBIM",
+                                        "All-in solution to BIM models, written in Rust",
+                                        Self::XBIM_REPOSITORY_URL,
+                                    );
+                                    ui.add_space(5.0);
+                                    Utils.project_card(
+                                        ui,
+                                        "VanillaPlus",
+                                        "Minecraft plugin that enhances the base gameplay",
+                                        Self::VANILLAPLUS_REPOSITORY_URL,
+                                    );
+                                });
+                            });
                         }
-
-                        _ => message.set("Failed to update user".into()),
-                    }
-
-                    user_state.set(("".to_string(), "".to_string(), None));
+                    });
+                    cols[1].with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                        // TODO: make settings better.
+                        ui.menu_button("⚙", |ui| {
+                            ui.label("Settings");
+                            ui.separator();
+                            ui.horizontal(|ui| {
+                                ui.label("Screen Reader:");
+                                Utils::screen_reader_switch(ui, &mut self.screen_reader_state);
+                            });
+                            ui.horizontal(|ui| {
+                                ui.label("Theme Preference:");
+                                egui::widgets::global_theme_preference_switch(ui);
+                            });
+                        });
+                        ui.button("⎆")
+                            .on_hover_text("Control Panel")
+                            .clicked()
+                            .then(|| self.page = Page::ControlPanel);
+                    });
                 });
-            }
-        })
-    };
-
-    let delete_user = {
-        let message = message.clone();
-        let get_users = get_users.clone();
-
-        Callback::from(move |id: i32| {
-            let message = message.clone();
-            let get_users = get_users.clone();
-
-            spawn_local(async move {
-                let response = Request::delete(&format!("http://127.0.0.1:8000/api/users/{}", id))
-                    .send()
-                    .await;
-
-                match response {
-                    Ok(resp) if resp.ok() => {
-                        message.set("User deleted successfully".into());
-                        get_users.emit(());
-                    }
-
-                    _ => message.set("Failed to delete user".into()),
-                }
             });
-        })
-    };
+        });
+    }
 
-    let edit_user = {
-        let user_state = user_state.clone();
-        let users = users.clone();
+    /// The body of the application.
+    ///
+    /// # Arguments
+    ///
+    /// * `ctx` - A reference to the `egui::Context`.
+    fn body(&mut self, ctx: &egui::Context) {
+        match self.page {
+            Page::Home => self.pages.home(ctx),
+            Page::ControlPanel => self.pages.control_panel(ctx),
+        }
+    }
 
-        Callback::from(move |id: i32| {
-            if let Some(user) = users.iter().find(|u| u.id == id) {
-                user_state.set((user.name.clone(), user.email.clone(), Some(id)));
-            }
-        })
-    };
+    /// The footer of the application.
+    ///
+    /// # Arguments
+    ///
+    /// * `ctx` - A reference to the `egui::Context`.
+    fn footer(&self, ctx: &egui::Context) {
+        // TODO: make bottom_panel vertically stacked when the window is too narrow.
+        // TODO: fix layout.
+        egui::TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
+            ui.columns(3, |cols| {
+                cols[0].with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
+                    ui.horizontal(|ui| {
+                        ui.spacing_mut().item_spacing.x = 0.0;
+                        ui.label("© 2024 ");
+                        ui.hyperlink_to("XODIUM™", Self::XODIUM_REPOSITORY_URL);
+                        ui.label(". Open-Source (CAD) Software Company.");
+                    });
+                });
+                cols[1].with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
+                    ui.horizontal(|ui| {
+                        ui.spacing_mut().item_spacing.x = 0.0;
+                        ui.label("Powered by ");
+                        ui.hyperlink_to("egui", Self::EGUI_REPOSITORY_URL);
+                        ui.label(" and ");
+                        ui.hyperlink_to("eframe", Self::EFRAME_REPOSITORY_URL);
+                        ui.label(".");
+                    });
+                });
+                cols[2].with_layout(egui::Layout::left_to_right(egui::Align::Min), |ui| {
+                    ui.horizontal(|ui| {
+                        ui.spacing_mut().item_spacing.x = 16.0;
+                        ui.hyperlink_to("About", Self::XODIUM_REPOSITORY_URL);
+                        ui.hyperlink_to("Licensing", Self::LICENSE_URL);
+                        ui.hyperlink_to("Contact", Self::CONTACT_EMAIL_URL);
+                    });
+                });
+            });
+        });
+    }
 }

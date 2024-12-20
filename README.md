@@ -67,7 +67,7 @@ Feel free to dive into the documentation to kickstart your journey with xBIM.
 
 <p align="right"><a href="#readme-top">▲</a></p>
 
-[built_with_shield_url]: https://skillicons.dev/icons?i=rust,github,githubactions
+[built_with_shield_url]: https://skillicons.dev/icons?i=rust,postgres,rocket,wasm,github,githubactions
 
 [built_with_url]: https://skillicons.dev
 

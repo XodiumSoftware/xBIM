@@ -1,17 +1,34 @@
 [package]
-name = "frontend"
+name = "xcad"
 version = "1.0.0"
 edition = "2021"
+include = ["LICENSE.md", "**/*.rs", "Cargo.toml"]
+authors = ["XodiumSoftware <https://xodium.org/>"]
+description = "CAD software providing automative tools."
+license = "AGPL-3.0"
+repository = "https://github.com/XodiumSoftware/xCAD"
+homepage = "https://xodium.org/"
+documentation = ""
 publish = false
 
 [package.metadata.docs.rs]
 all-features = true
+targets = ["wasm32-unknown-unknown"]
 
 [dependencies]
-yew = { version = "0.21", features = ["csr"] }
+chrono = "0.4.39"
+eframe = { version = "0.30.0", default-features = false, features = [
+    "default_fonts",
+    "glow",
+    "persistence",
+    "web_screen_reader",
+] }
+egui = "0.30.0"
+log = "0.4.22"
 wasm-bindgen = "0.2.99"
-web-sys = { version = "0.3.76", features = ["console"] }
-gloo = "0.11.0"
 wasm-bindgen-futures = "0.4.49"
-serde = { version = "1.0.216", features = ["derive"] }
-serde_json = "1.0.133"
+web-sys = { version = "0.3.76", features = [
+    "Window",
+    "Document",
+    "HtmlCanvasElement",
+] }

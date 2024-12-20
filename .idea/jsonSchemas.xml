@@ -3,23 +3,6 @@
   <component name="JsonSchemaMappingsProjectConfiguration">
     <state>
       <map>
-        <entry key="compose-spec">
-          <value>
-            <SchemaInfo>
-              <option name="generatedName" value="New Schema" />
-              <option name="name" value="compose-spec" />
-              <option name="relativePathToSchema" value="https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json" />
-              <option name="schemaVersion" value="JSON Schema 202,012" />
-              <option name="patterns">
-                <list>
-                  <Item>
-                    <option name="path" value="compose.yml" />
-                  </Item>
-                </list>
-              </option>
-            </SchemaInfo>
-          </value>
-        </entry>
         <entry key="github-funding">
           <value>
             <SchemaInfo>
@@ -85,6 +68,40 @@
                 <list>
                   <Item>
                     <option name="path" value=".github/workflows/ci_cd.yml" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+        <entry key="trunk-yaml-schema">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="trunk-yaml-schema" />
+              <option name="relativePathToSchema" value="https://static.trunk.io/pub/trunk-yaml-schema.json" />
+              <option name="schemaVersion" value="JSON Schema 202,012" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="frontend/Trunk.toml" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+        <entry key="web-manifest-combined">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="web-manifest-combined" />
+              <option name="relativePathToSchema" value="https://json.schemastore.org/web-manifest-combined.json" />
+              <option name="schemaVersion" value="JSON Schema 202,012" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="frontend/assets/manifest.json" />
                   </Item>
                 </list>
               </option>

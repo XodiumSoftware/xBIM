@@ -14,7 +14,7 @@ publish = false
 all-features = true
 
 [dependencies]
-rocket = { version = "0.5", features = ["json"] }
-tokio = { version = "1", features = ["full"] }
-tokio-postgres = "0.7.11"
+rocket = { version = "0.5.1", features = ["json"] }
+tokio = { version = "1.42", features = ["full"] }
+tokio-postgres = "0.7.12"
 rocket_cors = { version = "0.6.0", default-features = false }
