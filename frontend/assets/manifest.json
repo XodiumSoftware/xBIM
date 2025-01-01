@@ -1,0 +1,10 @@
+{
+  "name": "xodium_xbim_pwa",
+  "short_name": "xxb_pwa",
+  "lang": "en-US",
+  "id": "/index.html",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "white",
+  "theme_color": "white"
+}
