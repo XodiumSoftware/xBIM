@@ -2,7 +2,14 @@
 name = "xBIM"
 version = "1.0.0"
 edition = "2021"
-include = ["CODE_OF_CONDUCT.md", "CONTRIBUTING.md", "LICENSE.md", "README.md", "SECURITY.md", "**/*.rs", "Cargo.toml"]
+include = [
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md",
+    "LICENSE.md",
+    "README.md",
+    "**/*.rs",
+    "Cargo.toml",
+]
 authors = ["XodiumSoftware <https://xodium.org/>"]
 description = "All-in solution to BIM models, written in Rust"
 license = "AGPL-3.0"
@@ -14,9 +21,9 @@ publish = false
 all-features = true
 
 [dependencies]
+dotenv = "0.15.0"
 rocket = { version = "0.5.1", features = ["json"] }
 rocket_cors = "0.6.0"
 rocket_oauth2 = "0.5.0"
 reqwest = { version = "0.12.12", features = ["json"] }
 surrealdb = { version = "2.1.4", features = ["http"] }
-once_cell = "1.20.2"

@@ -1,14 +1,14 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "type": "lldb",
-        "request": "launch",
-        "name": "Cargo: RUN",
-        "program": "cargo",
-        "args": ["run"],
-        "cwd": "${workspaceFolder}",
-        "console": "integratedTerminal"
-      }
-    ]
-  }
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Cargo: RUN",
+      "program": "cargo",
+      "args": ["run"],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    }
+  ]
+}

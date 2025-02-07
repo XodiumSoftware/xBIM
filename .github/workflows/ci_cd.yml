@@ -1,16 +1,24 @@
 name: Xodium CI/CD
 run-name: "Xodium CI/CD"
 
-on: { push: { branches: [ main ], paths: [ 'src/**' ] }, workflow_dispatch: }
+on: { push: { branches: [main], paths: ["src/**"] }, workflow_dispatch }
 
 permissions: { contents: write, packages: write }
 
-concurrency: { group: "${{ github.workflow }}-${{ github.ref }}", cancel-in-progress: true }
+concurrency:
+  {
+    group: "${{ github.workflow }}-${{ github.ref }}",
+    cancel-in-progress: true,
+  }
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: { name: "${{ github.ref_name }}", url: "${{ steps.upload_artifact.outputs.artifact-url }}" }
+    environment:
+      {
+        name: "${{ github.ref_name }}",
+        url: "${{ steps.upload_artifact.outputs.artifact-url }}",
+      }
     outputs: { VERSION: "${{ steps.get_version.outputs.VERSION }}" }
     steps:
       - id: checkout
@@ -40,9 +48,13 @@ jobs:
         with: { name: xbim, path: target/release/xBIM.* }
 
   release:
-    needs: [ build ]
+    needs: [build]
     runs-on: ubuntu-latest
-    environment: { name: "${{ github.ref_name }}", url: "${{ steps.create_release.outputs.url }}" }
+    environment:
+      {
+        name: "${{ github.ref_name }}",
+        url: "${{ steps.create_release.outputs.url }}",
+      }
     steps:
       - id: download_artifact
         name: Download Artifact
@@ -51,7 +63,7 @@ jobs:
 
       - id: create_release
         name: Create Release
-        uses: softprops/action-gh-release@1fd6f3f2b1b859145679a1892abda586ef982a84
+        uses: softprops/action-gh-release@a92196038060e0c673cf3ba5b98710dd716731df
         env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
         with:
           draft: ${{ contains(github.event.head_commit.message, '.draft') }}

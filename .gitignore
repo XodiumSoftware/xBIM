@@ -3,5 +3,5 @@
 Cargo.lock
 
 # Environment files
-.env
+src/.env
 .env.*
