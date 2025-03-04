@@ -1,16 +1,24 @@
 name: Xodium CI/CD
 run-name: "Xodium CI/CD"
 
-on: { push: { branches: [ main ], paths: [ 'src/**' ] }, workflow_dispatch: }
+on: { push: { branches: [main], paths: ["src/**"] }, workflow_dispatch }
 
 permissions: { contents: write, packages: write }
 
-concurrency: { group: "${{ github.workflow }}-${{ github.ref }}", cancel-in-progress: true }
+concurrency:
+  {
+    group: "${{ github.workflow }}-${{ github.ref }}",
+    cancel-in-progress: true,
+  }
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: { name: "${{ github.ref_name }}", url: "${{ steps.upload_artifact.outputs.artifact-url }}" }
+    environment:
+      {
+        name: "${{ github.ref_name }}",
+        url: "${{ steps.upload_artifact.outputs.artifact-url }}",
+      }
     outputs: { VERSION: "${{ steps.get_version.outputs.VERSION }}" }
     steps:
       - id: checkout
@@ -19,7 +27,7 @@ jobs:
 
       - id: setup_rust
         name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@97db979bf844c838b06022f305ca480d01b4d5fe
+        uses: actions-rust-lang/setup-rust-toolchain@9399c7bb15d4c7d47b27263d024f0a4978346ba4
         with: { toolchain: stable }
 
       - id: build_artifact
@@ -40,9 +48,13 @@ jobs:
         with: { name: xbim, path: target/release/xBIM.* }
 
   release:
-    needs: [ build ]
+    needs: [build]
     runs-on: ubuntu-latest
-    environment: { name: "${{ github.ref_name }}", url: "${{ steps.create_release.outputs.url }}" }
+    environment:
+      {
+        name: "${{ github.ref_name }}",
+        url: "${{ steps.create_release.outputs.url }}",
+      }
     steps:
       - id: download_artifact
         name: Download Artifact
@@ -51,7 +63,7 @@ jobs:
 
       - id: create_release
         name: Create Release
-        uses: softprops/action-gh-release@1fd6f3f2b1b859145679a1892abda586ef982a84
+        uses: softprops/action-gh-release@670eb2f21a607fad397653d7e45de8f17ade7cc4
         env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
         with:
           draft: ${{ contains(github.event.head_commit.message, '.draft') }}

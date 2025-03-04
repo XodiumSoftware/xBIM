@@ -7,20 +7,13 @@
 #![forbid(unsafe_code)]
 
 use surrealdb::engine::remote::ws::Client;
+use surrealdb::sql::Uuid;
 use surrealdb::Surreal;
-
-/// Configuration for the database connection.
-pub struct DatabaseConfig {
-    pub host: String,
-    pub port: u16,
-    pub db_name: String,
-}
 
 /// Represents the database operations.
 pub struct Database {
     pub client: Surreal<Client>,
-    pub config: DatabaseConfig,
-    pub session_token: Option<String>,
+    pub session_token: Uuid,
 }
 
 impl Database {
@@ -29,25 +22,16 @@ impl Database {
     /// # Arguments
     ///
     /// * `client` - A `Surreal<Client>` instance for database operations.
-    /// * `config` - A `DatabaseConfig` instance containing the database configuration.
+    /// * `session_token` - A `Uuid` instance for the session token.
     ///
     /// # Returns
     ///
     /// A new `Database` instance.
-    pub fn new(client: Surreal<Client>, config: DatabaseConfig) -> Self {
+    pub fn new(client: Surreal<Client>) -> Self {
         Self {
             client,
-            config,
-            session_token: None,
+            session_token: Uuid::new(),
         }
-    }
-
-    /// Sets the session token for the database.
-    ///
-    /// # Arguments
-    /// * `token` - A `String` representing the session token.
-    pub fn set_session_token(&mut self, token: String) {
-        self.session_token = Some(token);
     }
 
     /// Runs a query on the database.
@@ -58,7 +42,6 @@ impl Database {
     /// # Returns
     /// A `Result` which is `Ok` if the query was successful, or an error if it failed.
     pub async fn run_query(&self, query: &str) -> surrealdb::Result<()> {
-        self.client.query(query).await?;
-        Ok(())
+        self.client.query(query).await.map(|_| ())
     }
 }

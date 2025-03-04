@@ -1,5 +1,4 @@
 [default.oauth.github]
 provider = "GitHub"
-client_id = "{GITHUB_CLIENT_ID}"
-client_secret = "{GITHUB_CLIENT_SECRET}"
-redirect_uri = "https://xbim.xodium.org/auth/github"
+client_id = "${GITHUB_CLIENT_ID}"
+client_secret = "${GITHUB_CLIENT_SECRET}"
