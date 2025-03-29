@@ -1,13 +1,13 @@
-/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-+ Copyright (c) 2025. Xodium.
-+ All rights reserved.
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+/*
+ * Copyright (c) 2025. Xodium.
+ * All rights reserved.
+ */
 
 #![warn(clippy::all, rust_2018_idioms)]
 #![forbid(unsafe_code)]
 
 use crate::config::Config;
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use surrealdb::{
@@ -15,7 +15,7 @@ use surrealdb::{
     error::Api,
     opt::auth::Root,
     sql::Uuid,
-    Error, Surreal,
+    Error, Result, Surreal,
 };
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -24,13 +24,12 @@ pub struct StoredIfcModel {
     pub name: String,
     pub version: String,
     pub description: Option<String>,
-    pub created_at: chrono::DateTime<Utc>,
-    pub updated_at: chrono::DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
     pub metadata: HashMap<String, String>,
     pub file_content: Option<String>,
 }
 
-/// Represents the database operations.
 pub struct Database {
     pub client: Surreal<Client>,
     pub session_token: Uuid,
@@ -47,10 +46,9 @@ impl Database {
     pub async fn new(config: &Config) -> Self {
         let client = Surreal::new::<Ws>(&config.database_url)
             .await
-            .expect(&format!(
-                "Failed to connect to SurrealDB at {}",
-                config.database_url
-            ));
+            .unwrap_or_else(|_| {
+                panic!("Failed to connect to SurrealDB at {}", config.database_url)
+            });
 
         client
             .signin(Root {
@@ -73,7 +71,7 @@ impl Database {
     ///
     /// # Returns
     /// A `Result` containing the saved model with its ID.
-    pub async fn save_ifc_model(&self, model: StoredIfcModel) -> surrealdb::Result<StoredIfcModel> {
+    pub async fn save_ifc_model(&self, model: StoredIfcModel) -> Result<StoredIfcModel> {
         let now = Utc::now();
         let stored_model = StoredIfcModel {
             id: None,
@@ -104,7 +102,7 @@ impl Database {
     ///
     /// # Returns
     /// A `Result` containing the retrieved IFC model, or an error if not found.
-    pub async fn get_ifc_model(&self, id: String) -> surrealdb::Result<StoredIfcModel> {
+    pub async fn get_ifc_model(&self, id: String) -> Result<StoredIfcModel> {
         self.client
             .select(("ifc_models", id))
             .await?

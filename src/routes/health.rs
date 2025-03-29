@@ -1,32 +1,36 @@
-/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-+ Copyright (c) 2025. Xodium.
-+ All rights reserved.
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+/*
+ * Copyright (c) 2025. Xodium.
+ * All rights reserved.
+ */
 
-use crate::middlewares::authentication::Authenticator;
+use crate::guards::{auth::AuthGuard, id::IdGuard};
 use chrono::{DateTime, Utc};
 use rocket::{get, serde::json::Json};
 use serde::Serialize;
 
 #[derive(Serialize)]
 pub struct Response {
-    status: &'static str,
-    version: &'static str,
+    status: String,
+    version: String,
     timestamp: DateTime<Utc>,
+    request_id: String,
 }
 
 /// Health check endpoint to confirm the service is running.
 ///
 /// # Arguments
-/// * `_auth` - The authentication guard for the request.
+/// * `ig` - Identification Guard.
+/// * `_ag` - Authentication Guard.
 ///
 /// # Returns
 /// A JSON response with the status, version, and timestamp.
 #[get("/health")]
-pub fn health(_auth: Authenticator) -> Json<Response> {
+pub fn health(ig: IdGuard, _ag: AuthGuard) -> Json<Response> {
+    println!("Health check requested with request ID: {}", ig.0);
     Json(Response {
-        status: "ok",
-        version: env!("CARGO_PKG_VERSION"),
+        status: "ok".to_string(),
+        version: env!("CARGO_PKG_VERSION").to_string(),
         timestamp: Utc::now(),
+        request_id: ig.0,
     })
 }

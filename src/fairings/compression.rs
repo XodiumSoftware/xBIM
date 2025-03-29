@@ -1,7 +1,7 @@
-/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-+ Copyright (c) 2025. Xodium.
-+ All rights reserved.
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+/*
+ * Copyright (c) 2025. Xodium.
+ * All rights reserved.
+ */
 
 use flate2::{write::GzEncoder, Compression};
 use rocket::{
@@ -13,24 +13,17 @@ use rocket::{
 };
 use std::io::{copy, Cursor};
 
-/// Response compression middleware
 pub struct Compressor;
 
 #[async_trait]
 impl Fairing for Compressor {
-    /// Returns the name and kind of the middleware
     fn info(&self) -> Info {
         Info {
-            name: "Response Compression",
+            name: "Response Compressor",
             kind: Kind::Response,
         }
     }
 
-    /// Compresses the response body with Gzip
-    ///
-    /// # Arguments
-    /// * `req` - The incoming request
-    /// * `res` - The outgoing response
     async fn on_response<'r>(&self, _: &'r Request<'_>, res: &mut Response<'r>) {
         if !res.headers().contains("Content-Encoding") {
             let mut body = res.body_mut().take();
@@ -57,11 +50,11 @@ mod tests {
     use super::*;
     use flate2::read::GzDecoder;
     use rocket::{
-        get,
+        build, get,
         http::Status,
-        local::blocking::Client,
-        response::{self, Responder},
-        routes, Build, Rocket,
+        local::blocking::{Client, LocalResponse},
+        response::{Responder, Result},
+        routes,
     };
     use std::io::Read;
 
@@ -73,7 +66,7 @@ mod tests {
     struct PreCompressedResponse(Vec<u8>);
 
     impl<'r> Responder<'r, 'static> for PreCompressedResponse {
-        fn respond_to(self, _: &'r Request<'_>) -> response::Result<'static> {
+        fn respond_to(self, _: &'r Request<'_>) -> Result<'static> {
             let mut response = Response::new();
             response.set_header(Header::new("Content-Encoding", "br"));
             response.set_sized_body(self.0.len(), Cursor::new(self.0));
@@ -86,16 +79,30 @@ mod tests {
         PreCompressedResponse(b"Hello".to_vec())
     }
 
-    fn rocket() -> Rocket<Build> {
-        rocket::build()
-            .attach(Compressor)
-            .mount("/", routes![large_response, pre_compressed])
+    struct TestContext {
+        client: Client,
+        compressor: Compressor,
+    }
+
+    impl TestContext {
+        fn new() -> Self {
+            let compressor = Compressor;
+            let rocket = build()
+                .attach(Compressor)
+                .mount("/", routes![large_response, pre_compressed]);
+            let client = Client::tracked(rocket).expect("valid rocket instance");
+            TestContext { client, compressor }
+        }
+
+        fn get<'a>(&'a self, path: &'a str) -> LocalResponse<'a> {
+            self.client.get(path).dispatch()
+        }
     }
 
     #[test]
     fn test_compressor_info() {
-        let compressor = Compressor;
-        let info = compressor.info();
+        let ctx = TestContext::new();
+        let info = ctx.compressor.info();
 
         assert_eq!(info.name, "Response Compression");
         assert!(info.kind.is(Kind::Response));
@@ -103,18 +110,16 @@ mod tests {
 
     #[test]
     fn test_response_is_compressed() {
-        let client = Client::tracked(rocket()).expect("valid rocket instance");
-        let response = client.get("/large-response").dispatch();
+        let ctx = TestContext::new();
+        let response = ctx.get("/large-response");
 
         assert_eq!(response.status(), Status::Ok);
-
         let headers = response.headers();
 
         assert!(headers.contains("Content-Encoding"));
         assert_eq!(headers.get_one("Content-Encoding").unwrap(), "gzip");
 
         let compressed_body = response.into_bytes().unwrap();
-
         assert!(compressed_body.len() < 1000);
 
         let mut decoder = GzDecoder::new(&compressed_body[..]);
@@ -128,11 +133,10 @@ mod tests {
 
     #[test]
     fn test_already_compressed_is_not_modified() {
-        let client = Client::tracked(rocket()).expect("valid rocket instance");
-        let response = client.get("/pre-compressed").dispatch();
+        let ctx = TestContext::new();
+        let response = ctx.get("/pre-compressed");
 
         assert_eq!(response.status(), Status::Ok);
-
         let headers = response.headers();
 
         assert!(headers.contains("Content-Encoding"));

@@ -1,13 +1,13 @@
-/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-+ Copyright (c) 2025. Xodium.
-+ All rights reserved.
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+/*
+ * Copyright (c) 2025. Xodium.
+ * All rights reserved.
+ */
 
 use serde::{Deserialize, Serialize};
 use std::{env, error, fs, io};
 
 /// Configuration settings for the application.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
     pub server_port: u16,
     pub database_url: String,
@@ -20,7 +20,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             server_port: 8001,
-            database_url: "localhost:8000".to_string(),
+            database_url: "db.xodium.org".to_string(),
             database_username: String::new(),
             database_password: String::new(),
             api_key: String::new(),

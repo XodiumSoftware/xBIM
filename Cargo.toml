@@ -1,6 +1,6 @@
 [package]
 name = "xBIM"
-version = "1.0.0"
+version = "1.2.0"
 edition = "2021"
 include = [
     "CODE_OF_CONDUCT.md",
@@ -22,12 +22,10 @@ all-features = true
 
 [dependencies]
 chrono = "0.4.40"
-dirs = "6.0.0"
 flate2 = "1.1.0"
-ifc_rs = "0.1.0-alpha.9"
 rocket = { version = "0.5.1", features = ["json"] }
 rocket_cors = "0.6.0"
 serde = { version = "1.0.219", features = ["derive"] }
-serde_json = "1.0.140"
-surrealdb = { version = "2.1.4", features = ["http"] }
+surrealdb = { version = "2.2.1", features = ["http"] }
 toml = "0.8.20"
+uuid = "1.16.0"
