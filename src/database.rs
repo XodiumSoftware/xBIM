@@ -4,6 +4,7 @@
  */
 
 use crate::config::AppConfig;
+use crate::utils::Utils;
 use rocket::serde::{Deserialize, Serialize};
 use surrealdb::{
     engine::remote::ws::{Client, Ws},
@@ -27,24 +28,36 @@ impl Database {
     /// # Returns
     /// A new `Database` instance.
     pub async fn new(config: &AppConfig) -> Self {
-        let client = Surreal::new::<Ws>(&config.database_url)
-            .await
-            .unwrap_or_else(|_| {
-                panic!("Failed to connect to SurrealDB at {}", config.database_url)
-            });
-
-        client
-            .signin(Root {
-                username: &config.database_username,
-                password: &config.database_password,
-            })
-            .await
-            .expect("Failed to sign in to SurrealDB");
-
-        Self {
-            client,
-            session_token: Uuid::new(),
+        match Self::connect(config).await {
+            Ok(db) => db,
+            Err(e) => {
+                Utils::database_err_msg(&e, config);
+                std::process::exit(1);
+            }
         }
+    }
+
+    /// Connects to the database using the provided configuration.
+    ///
+    /// # Arguments
+    /// * `config` - The application configuration.
+    ///
+    /// # Returns
+    /// A `Result` containing the connected `Database` instance.
+    async fn connect(config: &AppConfig) -> Result<Self, Error> {
+        Ok(Self {
+            client: {
+                let client = Surreal::new::<Ws>(&config.database_url).await?;
+                client
+                    .signin(Root {
+                        username: &config.database_username,
+                        password: &config.database_password,
+                    })
+                    .await?;
+                client
+            },
+            session_token: Uuid::new(),
+        })
     }
 
     /// Creates a new record in the specified table.
