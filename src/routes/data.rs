@@ -40,7 +40,7 @@ pub struct StoredIFC {
 /// # Returns
 /// The saved IFC model with its ID.
 #[post("/ifc", data = "<model>")]
-pub async fn upload_ifc(
+pub async fn data_upload(
     database: &State<Database>,
     _authguard: AuthGuard,
     _ratelimitguard: RocketGovernor<'_, RateLimitGuard>,
@@ -70,7 +70,7 @@ pub async fn upload_ifc(
 /// # Returns
 /// The retrieved IFC model.
 #[get("/ifc/<id>")]
-pub async fn get_ifc(
+pub async fn data_get(
     database: &State<Database>,
     _authguard: AuthGuard,
     _ratelimitguard: RocketGovernor<'_, RateLimitGuard>,
@@ -101,7 +101,7 @@ pub async fn get_ifc(
 /// # Returns
 /// The updated IFC model.
 #[put("/ifc/<id>", data = "<model>")]
-pub async fn update_ifc(
+pub async fn data_update(
     database: &State<Database>,
     _authguard: AuthGuard,
     _ratelimitguard: RocketGovernor<'_, RateLimitGuard>,
@@ -132,7 +132,7 @@ pub async fn update_ifc(
 /// # Returns
 /// 204 No Content on success, error status otherwise.
 #[delete("/ifc/<id>")]
-pub async fn delete_ifc(
+pub async fn data_delete(
     database: &State<Database>,
     _authguard: AuthGuard,
     _ratelimitguard: RocketGovernor<'_, RateLimitGuard>,
