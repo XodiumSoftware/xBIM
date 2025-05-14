@@ -18,12 +18,14 @@
 [![Issues][issues_shield_url]][issues_url]
 [![Roadmap][roadmap_shield_url]][roadmap_url]<br />
 [![Deps.rs][deps_shield_url]][deps_url]
+[![LINUX ONLY][linux_only_shield_url]][linux_only_url]
 
 </div>
 
 ## Table of Contents
 
 - [About The Project](#about-the-project)
+- [Usage](#usage)
 - [Built With](#built-with)
 - [Code of Conduct][code_of_conduct_url]
 - [Contributing][contributing_url]
@@ -35,6 +37,15 @@ xBIM is a project aimed to provide a complete solution for working with BIM mode
 provides a high level of performance and safety. The project is still in its early stages, but it is already capable of
 reading and writing IFC files.
 
+## Usage
+
+1. Download the latest version of xBIM from the [release][release_latest] page.
+2. Place it in a directory of your choice.
+3. Run the executable. It will return an error that it cannot connect to the database. This is expected, as the
+   database is not yet set up in the config.toml which will generate on first time run.
+4. Replace the default values in the config with yours.
+5. Rerun the executable and voila!
+
 ## Built With
 
 <div align="center">
@@ -45,7 +56,7 @@ reading and writing IFC files.
 
 <p align="right"><a href="#readme-top">▲</a></p>
 
-[built_with_shield_url]: https://skillicons.dev/icons?i=rust,github,githubactions
+[built_with_shield_url]: https://skillicons.dev/icons?i=linux,rust,github,githubactions
 
 [built_with_url]: https://skillicons.dev
 
@@ -66,6 +77,12 @@ reading and writing IFC files.
 [issues_url]: https://github.com/XodiumSoftware/xBIM/issues
 
 [license_url]: https://github.com/XodiumSoftware/xBIM?tab=AGPL-3.0-1-ov-file
+
+[linux_only_shield_url]: https://img.shields.io/badge/OS-Linux%20Only-red.svg?style=for-the-badge
+
+[linux_only_url]: https://www.linux.org/
+
+[release_latest]: https://github.com/XodiumSoftware/xBIM/releases/latest
 
 [roadmap_shield_url]: https://img.shields.io/badge/Roadmap-Click%20Me!-purple.svg?style=for-the-badge
 
