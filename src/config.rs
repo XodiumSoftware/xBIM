@@ -6,7 +6,6 @@
 use crate::utils::Utils;
 use figment::providers::{Format, Serialized, Toml};
 use figment::Figment;
-use rocket::serde::uuid::Uuid;
 use rocket::serde::{Deserialize, Serialize};
 use std::fs;
 use std::fs::File;
@@ -14,31 +13,21 @@ use std::io::Write;
 use std::path::PathBuf;
 
 /// Configuration settings for the application.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Default, Debug, Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-pub struct AppConfig {
+pub struct Config {
+    pub secret_key: String,
     pub database_url: String,
     pub database_username: String,
     pub database_password: String,
-    pub api_key: Uuid,
+    pub github_client_id: String,
+    pub github_client_secret: String,
+    pub github_redirect_url: String,
     pub tls_cert_path: String,
     pub tls_key_path: String,
 }
 
-impl Default for AppConfig {
-    fn default() -> Self {
-        Self {
-            database_url: "db.xodium.org".to_string(),
-            database_username: String::new(),
-            database_password: String::new(),
-            api_key: Uuid::now_v7(),
-            tls_cert_path: String::new(),
-            tls_key_path: String::new(),
-        }
-    }
-}
-
-impl AppConfig {
+impl Config {
     /// Creates a new instance of `AppConfig` with default values.
     ///
     /// # Returns

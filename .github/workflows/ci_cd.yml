@@ -27,11 +27,11 @@ jobs:
 
       - id: setup_rust
         name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@9399c7bb15d4c7d47b27263d024f0a4978346ba4
+        uses: actions-rust-lang/setup-rust-toolchain@9d7e65c320fdb52dcd45ffaa68deb6c02c8754d9
         with: { toolchain: stable }
 
       - id: build_artifact
-        name: Build Artifact
+        name: Build Artefact
         run: cargo build --release
 
       - id: install_toml_cli
@@ -62,7 +62,7 @@ jobs:
 
       - id: setup_rust
         name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@9399c7bb15d4c7d47b27263d024f0a4978346ba4
+        uses: actions-rust-lang/setup-rust-toolchain@9d7e65c320fdb52dcd45ffaa68deb6c02c8754d9
         with: { toolchain: stable }
 
       - id: run_tests
@@ -79,17 +79,17 @@ jobs:
       }
     steps:
       - id: download_artifact
-        name: Download Artifact
+        name: Download Artefact
         uses: actions/download-artifact@main
         with: { name: xbim }
 
       - id: create_release
         name: Create Release
-        uses: softprops/action-gh-release@ab50eebb6488051c6788d97fa95232267c6a4e23
+        uses: softprops/action-gh-release@37fd9d0351a2df198244c8ef9f56d02d1f921e20
         env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
         with:
           draft: ${{ contains(github.event.head_commit.message, '.draft') }}
           generate_release_notes: true
           prerelease: ${{ contains(github.event.head_commit.message, '.pre') }}
           tag_name: v${{ needs.build.outputs.VERSION }}
-          files: .
+          files: xBIM
